@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
-	"time"
-	"strconv"
+	// "time"
+	// "strconv"
+	"os"
+	"io/ioutil"
+	"encoding/json"
 )
 
 // 難易度を選択できるようにする
@@ -11,22 +14,44 @@ import (
 // 英単語はランダムにして重複しないようにする
 // エンターを押したらスタートするようにする
 
-func main() {
-	var c int
-	go func() {
-		for {
-			fmt.Println("aaaa")
-			fmt.Print("-> ")
-			var input string
-			fmt.Scan(&input)
-			if input == "aaaa" {
-				c++
-			}
-		}
-	}()
+type word struct {
+	Id int     `json:"id"`
+	En string  `json:"en"`
+	Jp string  `json:"jp"`
+}
 
-	select {
-	case <-time.After(5 * time.Second):
-		fmt.Println("\nTime's up! Score: " + strconv.Itoa(c))
+func main() {
+	bytes, err := ioutil.ReadFile("wordlist/level1.json")
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
+
+	var wordList []word
+	err = json.Unmarshal(bytes, &wordList)
+	if err != nil {
+		println(err.Error())
+	}
+
+	for _, word := range wordList {
+		fmt.Printf("%d : %s %s\n", word.Id, word.En, word.Jp)
+	}
+
+	// var c int
+	// go func() {
+	// 	for {
+	// 		fmt.Println("abc")
+	// 		fmt.Print("-> ")
+	// 		var input string
+	// 		fmt.Scan(&input)
+	// 		if input == "abc" {
+	// 			c++
+	// 		}
+	// 	}
+	// }()
+
+	// select {
+	// case <-time.After(5 * time.Second):
+	// 	fmt.Println("\nTime's up! Score: " + strconv.Itoa(c))
+	// }
 }
