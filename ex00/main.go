@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"time"
-	"strconv"
-	"os"
-	"io/ioutil"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"strconv"
+	"time"
 )
 
 // 難易度を選択できるようにする
@@ -16,25 +16,18 @@ import (
 // エンターを押したらスタートするようにする
 
 type word struct {
-	Id int     `json:"id"`
 	En string  `json:"en"`
 	Jp string  `json:"jp"`
 }
 
 func main() {
-	bytes, err := ioutil.ReadFile("wordlist/level1.json")
+	wordList, err := getWordList("1")
 	if err != nil {
 		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
-	var wordList []word
-	err = json.Unmarshal(bytes, &wordList)
-	if err != nil {
-		println(err.Error())
 	}
 
 	var correctCnt int
+	ch := make(chan error, 1)
 	go func() {
 		var playCnt int
 		size := len(wordList)
@@ -50,15 +43,31 @@ func main() {
 			}
 			playCnt++
 			if playCnt == size {
-				println("Error")
+				ch<- errors.New("Error: No words to load")
 			}
 		}
 	}()
 
 	select {
+	case err := <-ch:
+		fmt.Println(err.Error())
 	case <-time.After(10 * time.Second):
 		fmt.Println("\nTime's up! Score: " + strconv.Itoa(correctCnt))
 	}
+}
+
+func getWordList(level string) ([]word, error) {
+	bytes, err := ioutil.ReadFile("wordlist/level" + level + ".json")
+	if err != nil {
+		return nil, err
+	}
+
+	var wordList []word
+	err = json.Unmarshal(bytes, &wordList)
+	if err != nil {
+		return nil, err
+	}
+	return wordList, nil
 }
 
 func getWord(wordList []word, size int, useI *[]int) word {
