@@ -34,29 +34,51 @@ func main() {
 		println(err.Error())
 	}
 
-	var c int
+	var correctCnt int
 	go func() {
+		var playCnt int
 		size := len(wordList)
+		useI := make([]int, 0)
 		for {
-			word := getWord(wordList, size)
+			word := getWord(wordList, size, &useI)
 			fmt.Println(word.En)
 			fmt.Print("-> ")
 			var input string
 			fmt.Scan(&input)
 			if input == word.En {
-				c++
+				correctCnt++
+			}
+			playCnt++
+			if playCnt == size {
+				println("Error")
 			}
 		}
 	}()
 
 	select {
 	case <-time.After(10 * time.Second):
-		fmt.Println("\nTime's up! Score: " + strconv.Itoa(c))
+		fmt.Println("\nTime's up! Score: " + strconv.Itoa(correctCnt))
 	}
 }
 
-func getWord(wordList []word, size int) word {
-	rand.Seed(time.Now().UnixNano())
-  randI := rand.Intn(size)
+func getWord(wordList []word, size int, useI *[]int) word {
+	var randI int
+	for {
+		rand.Seed(time.Now().UnixNano())
+		randI = rand.Intn(size)
+		if isUnique(randI, *useI) {
+			*useI = append(*useI, randI)
+			break
+		}
+	}
 	return wordList[randI]
+}
+
+func isUnique(target int, useI []int) bool {
+	for _, n := range useI {
+		if target == n {
+			return false
+		}
+	}
+	return true
 }
