@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	// "time"
-	// "strconv"
+	"time"
+	"strconv"
 	"os"
 	"io/ioutil"
 	"encoding/json"
@@ -33,25 +33,21 @@ func main() {
 		println(err.Error())
 	}
 
-	for _, word := range wordList {
-		fmt.Printf("%d : %s %s\n", word.Id, word.En, word.Jp)
+	var c int
+	go func() {
+		for _, word := range wordList {
+			fmt.Println(word.En)
+			fmt.Print("-> ")
+			var input string
+			fmt.Scan(&input)
+			if input == word.En {
+				c++
+			}
+		}
+	}()
+
+	select {
+	case <-time.After(5 * time.Second):
+		fmt.Println("\nTime's up! Score: " + strconv.Itoa(c))
 	}
-
-	// var c int
-	// go func() {
-	// 	for {
-	// 		fmt.Println("abc")
-	// 		fmt.Print("-> ")
-	// 		var input string
-	// 		fmt.Scan(&input)
-	// 		if input == "abc" {
-	// 			c++
-	// 		}
-	// 	}
-	// }()
-
-	// select {
-	// case <-time.After(5 * time.Second):
-	// 	fmt.Println("\nTime's up! Score: " + strconv.Itoa(c))
-	// }
 }
