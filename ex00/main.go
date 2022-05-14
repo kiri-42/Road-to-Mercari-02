@@ -21,9 +21,21 @@ type word struct {
 }
 
 func main() {
-	wordList, err := getWordList("1")
+	fmt.Println("難易度を選択してください(1~3)")
+	fmt.Print("-> ")
+	var level string
+	fmt.Scan(&level)
+	switch level {
+	case "1", "2", "3":
+	default:
+		fmt.Println(errors.New("Error"))
+		return
+	}
+
+	wordList, err := getWordList(level)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
 	var correctCnt int
@@ -51,6 +63,7 @@ func main() {
 	select {
 	case err := <-ch:
 		fmt.Println(err.Error())
+		return
 	case <-time.After(10 * time.Second):
 		fmt.Println("\nTime's up! Score: " + strconv.Itoa(correctCnt))
 	}
