@@ -21,7 +21,10 @@ type word struct {
 }
 
 func main() {
-	fmt.Println("難易度を選択してください(1~3)")
+	fmt.Println("難易度を選択してください(1 ~ 3)")
+	fmt.Println("1: 中学生レベル")
+	fmt.Println("2: 高校生レベル")
+	fmt.Println("3: 大学生・社会人レベル")
 	fmt.Print("-> ")
 	var level string
 	fmt.Scan(&level)
@@ -46,6 +49,7 @@ func main() {
 		useI := make([]int, 0)
 		for {
 			word := getWord(wordList, size, &useI)
+			fmt.Println(word.Jp)
 			fmt.Println(word.En)
 			fmt.Print("-> ")
 			var input string
@@ -64,7 +68,7 @@ func main() {
 	case err := <-ch:
 		fmt.Println(err.Error())
 		return
-	case <-time.After(10 * time.Second):
+	case <-time.After(30 * time.Second):
 		fmt.Println("\nTime's up! Score: " + strconv.Itoa(correctCnt))
 	}
 }
