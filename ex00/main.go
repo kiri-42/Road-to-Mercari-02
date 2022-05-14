@@ -21,17 +21,9 @@ type word struct {
 }
 
 func main() {
-	fmt.Println("難易度を選択してください(1 ~ 3)")
-	fmt.Println("1: 中学生レベル")
-	fmt.Println("2: 高校生レベル")
-	fmt.Println("3: 大学生・社会人レベル")
-	fmt.Print("-> ")
-	var level string
-	fmt.Scan(&level)
-	switch level {
-	case "1", "2", "3":
-	default:
-		fmt.Println(errors.New("Error"))
+	level, err := selectLevel()
+	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -71,6 +63,22 @@ func main() {
 	case <-time.After(30 * time.Second):
 		fmt.Println("\nTime's up! Score: " + strconv.Itoa(correctCnt))
 	}
+}
+
+func selectLevel() (string, error) {
+	fmt.Println("難易度を選択してください(1 ~ 3)")
+	fmt.Println("1: 中学生レベル")
+	fmt.Println("2: 高校生レベル")
+	fmt.Println("3: 大学生・社会人レベル")
+	fmt.Print("-> ")
+	var level string
+	fmt.Scan(&level)
+	switch level {
+	case "1", "2", "3":
+	default:
+		return "", errors.New("Error")
+	}
+	return level, nil
 }
 
 func getWordList(level string) ([]word, error) {
