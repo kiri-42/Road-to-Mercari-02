@@ -7,6 +7,7 @@ import (
 	"os"
 	"io/ioutil"
 	"encoding/json"
+	"math/rand"
 )
 
 // 難易度を選択できるようにする
@@ -35,7 +36,9 @@ func main() {
 
 	var c int
 	go func() {
-		for _, word := range wordList {
+		size := len(wordList)
+		for {
+			word := getWord(wordList, size)
 			fmt.Println(word.En)
 			fmt.Print("-> ")
 			var input string
@@ -47,7 +50,13 @@ func main() {
 	}()
 
 	select {
-	case <-time.After(5 * time.Second):
+	case <-time.After(10 * time.Second):
 		fmt.Println("\nTime's up! Score: " + strconv.Itoa(c))
 	}
+}
+
+func getWord(wordList []word, size int) word {
+	rand.Seed(time.Now().UnixNano())
+  randI := rand.Intn(size)
+	return wordList[randI]
 }
