@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"strconv"
 	"time"
+	"flag"
 )
 
 // 難易度を選択できるようにする
@@ -21,6 +22,9 @@ type word struct {
 }
 
 func main() {
+	useJp := flag.Bool("jp", false, "Flag to display Jp")
+	flag.Parse()
+
 	level, err := selectLevel()
 	if err != nil {
 		fmt.Println(err.Error())
@@ -41,7 +45,9 @@ func main() {
 		useI := make([]int, 0)
 		for {
 			word := getWord(wordList, size, &useI)
-			fmt.Println(word.Jp)
+			if *useJp {
+				fmt.Println(word.Jp)
+			}
 			fmt.Println(word.En)
 			fmt.Print("-> ")
 			var input string
@@ -68,15 +74,17 @@ func main() {
 func selectLevel() (string, error) {
 	fmt.Println("難易度を選択してください(1 ~ 3)")
 	fmt.Println("1: 中学生レベル")
-	fmt.Println("2: 高校生レベル")
-	fmt.Println("3: 大学生・社会人レベル")
+	fmt.Println("2: 高校生レベル(coming soon)")
+	fmt.Println("3: 大学生・社会人レベル(coming soon)")
 	fmt.Print("-> ")
 	var level string
 	fmt.Scan(&level)
 	switch level {
-	case "1", "2", "3":
+	case "1":
+	case "2", "3":
+		return "", errors.New("Coming soon!")
 	default:
-		return "", errors.New("Error")
+		return "", errors.New("Error: Please enter 1 ~ 3")
 	}
 	return level, nil
 }
