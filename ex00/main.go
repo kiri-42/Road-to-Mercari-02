@@ -72,10 +72,10 @@ func main() {
 }
 
 func selectLevel() (string, error) {
-	fmt.Println("難易度を選択してください(1 ~ 3)")
-	fmt.Println("1: 中学生レベル")
-	fmt.Println("2: 高校生レベル(coming soon)")
-	fmt.Println("3: 大学生・社会人レベル(coming soon)")
+	fmt.Println("Please select a difficulty level(1 ~ 3)")
+	fmt.Println("1: Junior High School level")
+	fmt.Println("2: High School level(coming soon)")
+	fmt.Println("3: University student and adult level(coming soon)")
 	fmt.Print("-> ")
 	var level string
 	fmt.Scan(&level)
