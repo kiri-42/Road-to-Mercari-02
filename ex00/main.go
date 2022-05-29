@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
-	"flag"
+	"unicode"
 )
 
 type word struct {
@@ -20,11 +23,7 @@ func main() {
 	useJp := flag.Bool("jp", false, "Flag to display Jp")
 	flag.Parse()
 
-	level, err := selectLevel()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	level := selectLevel()
 
 	wordList, err := getWordList(level)
 	if err != nil {
@@ -66,22 +65,40 @@ func main() {
 	}
 }
 
-func selectLevel() (string, error) {
+func selectLevel() string {
 	fmt.Println("Please select a difficulty level(1 ~ 3)")
 	fmt.Println("1: Junior High School level")
 	fmt.Println("2: High School level(coming soon)")
 	fmt.Println("3: University student and adult level(coming soon)")
-	fmt.Print("-> ")
-	var level string
-	fmt.Scan(&level)
-	switch level {
-	case "1":
-	case "2", "3":
-		return "", errors.New("Coming soon!")
-	default:
-		return "", errors.New("Error: Please enter 1 ~ 3")
+
+	sc := bufio.NewScanner(os.Stdin)
+	level := ""
+	for {
+		fmt.Print("-> ")
+		sc.Scan()
+		level = sc.Text()
+
+		switch level {
+		case "1":
+			return level
+		case "2", "3":
+			fmt.Println("Coming soon!")
+			fmt.Println("Please enter 1")
+		default:
+			fmt.Println("Please enter 1 ~ 3")
+		}
 	}
-	return level, nil
+}
+
+func isNumber(str string) bool {
+	strRunes := []rune(str)
+
+	for _, r := range strRunes {
+		if !unicode.IsNumber(r) {
+			return false
+		}
+	}
+	return true
 }
 
 func getWordList(level string) ([]word, error) {
