@@ -25,18 +25,21 @@ const THREAD = 4
 
 func main() {
 	if len(os.Args) != 2 {
-		println("Error")
+		fmt.Fprintln(os.Stderr, "Error")
 		return
 	}
 
 	fileUrl := os.Args[1]
+
 	size := getContentSize(fileUrl)
-	var thread int = 0
+
+	thread := 0
 	if hasAcceptRangesBytes(fileUrl) {
 		thread = THREAD
 	} else {
 		thread = 1
 	}
+
 	ranges, err := makeRanges(thread, size)
 	if err != nil {
 		return
@@ -47,19 +50,19 @@ func main() {
 		trap := make(chan os.Signal, 1)
 		signal.Notify(trap, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINT)
 		<-trap
+
 		for i, _ := range ranges {
 			tmpPath := getTmpPath(i)
-			if f, err := os.Stat(tmpPath); os.IsNotExist(err) || f.IsDir() {
-				fmt.Println("ファイルは存在しません！")
-			} else {
-					os.Remove(tmpPath)
+			if f, err := os.Stat(tmpPath); !(os.IsNotExist(err) || f.IsDir()) {
+				os.Remove(tmpPath)
 			}
 		}
+
 		os.Exit(0)
 	}()
 
 	downloadFile(fileUrl, ranges)
-	time.Sleep(time.Second * 10)
+
 	margeFile(fileUrl, ranges)
 }
 
@@ -67,7 +70,7 @@ func margeFile(fileUrl string, ranges []string) {
 	filepath := getFilepath(fileUrl)
 	out, err := os.Create(filepath)
 	if err != nil {
-		println(err.Error())
+		fmt.println(os.Stderr, err.Error())
 		return
 	}
 	defer out.Close()
@@ -76,14 +79,14 @@ func margeFile(fileUrl string, ranges []string) {
 		tmpPath := getTmpPath(i)
 		sub , err := os.Open(tmpPath)
 		if err != nil {
-			println(err.Error())
+			fmt.println(os.Stderr, err.Error())
 			return
 		}
 		defer os.Remove(tmpPath)
 
 		_, err = io.Copy(out, sub)
 		if err != nil {
-			println(err.Error())
+			fmt.Fprintln(os.Stderr, err.Error())
 			return
 		}
 	}
@@ -92,7 +95,7 @@ func margeFile(fileUrl string, ranges []string) {
 func downloadFile(fileUrl string, ranges []string) {
 	eg := new(errgroup.Group)
 	for i, s := range ranges {
-		println(s)
+		// fmt.Println(s)
 		i := i
 		s := s
 		eg.Go(func() error {
@@ -107,11 +110,10 @@ func downloadFile(fileUrl string, ranges []string) {
 
 			resp, err := client.Do(req)
 			if err != nil {
-				println(err.Error())
+				fmt.Fprintln(os.Stderr, err.Error())
 			}
 
 			tmpPath := getTmpPath(i)
-
 			tmp, err := os.Create(tmpPath)
 			if err != nil {
 				return err
@@ -127,7 +129,7 @@ func downloadFile(fileUrl string, ranges []string) {
 	}
 
 	if err := eg.Wait(); err != nil {
-		fmt.Printf("error :%v\n", err)
+		fmt.Fprintf(os.Stderr, "error :%v\n", err)
 	}
 }
 
@@ -143,6 +145,7 @@ func hasAcceptRangesBytes(url string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -153,14 +156,16 @@ func getContentSize(url string) int {
 		n, _ := strconv.Atoi(v)
 		return n
 	}
+
 	return 0
 }
 
 func makeRanges(n int, size int) ([]string, error) {
-	ranges := make([]string, 0)
 	if n < 0 {
 		return nil, errors.New("thread error")
 	}
+
+	ranges := make([]string, 0)
 	div := size / n
 	start := 0
 	end := div
@@ -172,6 +177,7 @@ func makeRanges(n int, size int) ([]string, error) {
 		str := fmt.Sprintf("bytes=%d-%d", start, end)
 		ranges = append(ranges, str)
 	}
+
 	return ranges, nil
 }
 
@@ -181,10 +187,12 @@ func getFilepath(url string) string {
 	if runes[len(url)-1] == '/' {
 		return ""
 	}
+
 	for i, r := range runes {
 		if r == '/' {
 			fileI = i + 1
 		}
 	}
+
 	return string(runes[fileI:])
 }
