@@ -33,22 +33,28 @@ func main() {
 
 	var correctCnt int
 	ch := make(chan error, 1)
+
 	go func() {
 		var playCnt int
 		size := len(wordList)
 		useI := make([]int, 0)
+		sc := bufio.NewScanner(os.Stdin)
 		for {
 			word := getWord(wordList, size, &useI)
+
 			if *useJp {
 				fmt.Println(word.Jp)
 			}
+
 			fmt.Println(word.En)
 			fmt.Print("-> ")
-			var input string
-			fmt.Scan(&input)
+			sc.Scan()
+
+			input := sc.Text()
 			if input == word.En {
 				correctCnt++
 			}
+
 			playCnt++
 			if playCnt == size {
 				ch<- errors.New("Error: No words to load")
@@ -90,17 +96,6 @@ func selectLevel() string {
 	}
 }
 
-func isNumber(str string) bool {
-	strRunes := []rune(str)
-
-	for _, r := range strRunes {
-		if !unicode.IsNumber(r) {
-			return false
-		}
-	}
-	return true
-}
-
 func getWordList(level string) ([]word, error) {
 	bytes, err := ioutil.ReadFile("wordlist/level" + level + ".json")
 	if err != nil {
@@ -112,6 +107,7 @@ func getWordList(level string) ([]word, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return wordList, nil
 }
 
@@ -125,6 +121,7 @@ func getWord(wordList []word, size int, useI *[]int) word {
 			break
 		}
 	}
+
 	return wordList[randI]
 }
 
@@ -134,5 +131,6 @@ func isUnique(target int, useI []int) bool {
 			return false
 		}
 	}
+
 	return true
 }
