@@ -15,8 +15,8 @@ import (
 )
 
 type word struct {
-	En string  `json:"en"`
-	Jp string  `json:"jp"`
+	En string `json:"en"`
+	Jp string `json:"jp"`
 }
 
 func main() {
@@ -57,7 +57,7 @@ func main() {
 
 			playCnt++
 			if playCnt == size {
-				ch<- errors.New("Error: No words to load")
+				ch <- errors.New("Error: No words to load")
 			}
 		}
 	}()
